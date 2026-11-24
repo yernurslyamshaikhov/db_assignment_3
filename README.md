@@ -164,7 +164,7 @@ All hold in the sample data. Enforcement:
 |---|---|---|
 | Every user is an author, a reviewer or both | Yes (app) | user form requires ≥1 role |
 | Author has ≥1 research area; reviewer has ≥1 expertise area | Yes (app) | user form |
-| Paper has ≥1 author | Yes (app + DB) | paper form; author with papers cannot be deleted (FK) |
+| Paper has ≥1 author | Yes (app) | paper form; author with papers cannot be deleted (FK) |
 | Exactly one corresponding author per paper | Yes | at most one: DB partial unique index; at least one: app |
 | Paper has ≥1 keyword | Yes (app) | paper form |
 | Paper has ≥1 version | Yes (app) | v1 required on creation; last version cannot be deleted |
@@ -175,9 +175,12 @@ All hold in the sample data. Enforcement:
 
 ## 9. Design assumptions
 
-* Follows the Appendix A reference schema (EER subclasses AUTHOR/REVIEWER with shared PK,
-  overlapping + total specialization; PAPER_VERSION as weak entity). *If your Assignment 1
-  design differed materially, describe the differences here.*
+* The relational schema implements my Assignment 1 EER/UML design without material changes.
+  The design follows the Assignment 1 specification and matches the Appendix A reference schema:
+  AUTHOR and REVIEWER are overlapping, total subclasses of APP_USER with a shared primary key;
+  PAPER_VERSION is a weak entity identified by (paper_id, version_no); multivalued labels
+  (research areas, expertise areas, host institutions, keywords) are stored in separate relations;
+  authorship and reviewer pools are M:N relations.
 * Phone numbers are stored as text; ORCID is optional but unique when present.
 * Author positions are renumbered 1..n in row order whenever the author list is edited.
 * Status changes away from `accepted` for a scheduled paper are rejected (the user must
