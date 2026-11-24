@@ -1,0 +1,15 @@
+# Render Blueprint: web service. Set DATABASE_URL to your Neon (or Render) PostgreSQL URL.
+services:
+  - type: web
+    name: conference-review-app
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.12.7

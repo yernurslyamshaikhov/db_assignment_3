@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Users</h1>
+<p><a class="btn" href="{{ url_for('user_new') }}">+ New user</a></p>
+<table>
+  <tr><th>ID</th><th>Name</th><th>Email</th><th>Affiliation</th><th>Country</th><th>Phone</th><th>Roles</th><th></th></tr>
+  {% for u in users %}
+  <tr><td>{{ u.user_id }}</td><td><a href="{{ url_for('user_detail', uid=u.user_id) }}">{{ u.given_name }} {{ u.surname }}</a></td>
+      <td>{{ u.email }}</td><td>{{ u.affiliation }}</td><td>{{ u.country }}</td><td>{{ u.phone_number }}</td>
+      <td>{{ 'author' if u.is_author }}{{ ', ' if u.is_author and u.is_reviewer }}{{ 'reviewer' if u.is_reviewer }}</td>
+      <td><a href="{{ url_for('user_edit', uid=u.user_id) }}">edit</a></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

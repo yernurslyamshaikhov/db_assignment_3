@@ -1,0 +1,704 @@
+CSCI 341 Assignment 3 - Part 2 output
+Run at 2026-11-24 21:05:46
+PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+
+==============================================================================
+TASK 1 - Create statements (tables + constraints from sql/schema.sql)
+==============================================================================
+Executing schema.sql through SQLAlchemy (conn.exec_driver_sql) ...
+
+--- 1a. Tables created
+SQL:
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+    ORDER BY table_name
+
++----------------------+
+| table_name           |
++----------------------+
+| app_user             |
+| author               |
+| author_research_area |
+| conference           |
+| conference_host      |
+| conference_reviewer  |
+| conference_session   |
+| paper                |
+| paper_author         |
+| paper_keyword        |
+| paper_version        |
+| review               |
+| reviewer             |
+| reviewer_expertise   |
+| track                |
++----------------------+
+(15 rows)
+
+--- 1b. Constraints created (PK, FK, UNIQUE, CHECK)
+SQL:
+    SELECT tc.table_name, tc.constraint_type, tc.constraint_name
+    FROM information_schema.table_constraints tc
+    WHERE tc.table_schema = 'public'
+      AND tc.constraint_type IN ('PRIMARY KEY', 'FOREIGN KEY', 'UNIQUE', 'CHECK')
+      AND tc.constraint_name NOT LIKE '%_not_null'
+    ORDER BY tc.table_name, tc.constraint_type, tc.constraint_name
+
++----------------------+-----------------+----------------------------------------+
+| table_name           | constraint_type | constraint_name                        |
++----------------------+-----------------+----------------------------------------+
+| app_user             | PRIMARY KEY     | app_user_pkey                          |
+| app_user             | UNIQUE          | uq_app_user_email                      |
+| author               | FOREIGN KEY     | author_author_id_fkey                  |
+| author               | PRIMARY KEY     | author_pkey                            |
+| author               | UNIQUE          | author_orcid_key                       |
+| author_research_area | FOREIGN KEY     | author_research_area_author_id_fkey    |
+| author_research_area | PRIMARY KEY     | author_research_area_pkey              |
+| conference           | CHECK           | ck_conference_dates                    |
+| conference           | PRIMARY KEY     | conference_pkey                        |
+| conference_host      | FOREIGN KEY     | conference_host_conference_id_fkey     |
+| conference_host      | PRIMARY KEY     | conference_host_pkey                   |
+| conference_reviewer  | FOREIGN KEY     | conference_reviewer_conference_id_fkey |
+| conference_reviewer  | FOREIGN KEY     | conference_reviewer_reviewer_id_fkey   |
+| conference_reviewer  | PRIMARY KEY     | conference_reviewer_pkey               |
+| conference_session   | CHECK           | ck_session_times                       |
+| conference_session   | FOREIGN KEY     | conference_session_chair_id_fkey       |
+| conference_session   | FOREIGN KEY     | conference_session_conference_id_fkey  |
+| conference_session   | FOREIGN KEY     | fk_session_chair_pool                  |
+| conference_session   | PRIMARY KEY     | conference_session_pkey                |
+| paper                | CHECK           | ck_paper_status                        |
+| paper                | FOREIGN KEY     | paper_session_id_fkey                  |
+| paper                | FOREIGN KEY     | paper_track_id_fkey                    |
+| paper                | PRIMARY KEY     | paper_pkey                             |
+| paper_author         | CHECK           | ck_author_position                     |
+| paper_author         | FOREIGN KEY     | paper_author_author_id_fkey            |
+| paper_author         | FOREIGN KEY     | paper_author_paper_id_fkey             |
+| paper_author         | PRIMARY KEY     | paper_author_pkey                      |
+| paper_author         | UNIQUE          | uq_paper_author_position               |
+| paper_keyword        | FOREIGN KEY     | paper_keyword_paper_id_fkey            |
+| paper_keyword        | PRIMARY KEY     | paper_keyword_pkey                     |
+| paper_version        | CHECK           | ck_version_no                          |
+| paper_version        | FOREIGN KEY     | paper_version_paper_id_fkey            |
+| paper_version        | PRIMARY KEY     | paper_version_pkey                     |
+| review               | CHECK           | ck_review_recommendation               |
+| review               | CHECK           | ck_review_score                        |
+| review               | FOREIGN KEY     | review_paper_id_fkey                   |
+| review               | FOREIGN KEY     | review_reviewer_id_fkey                |
+| review               | PRIMARY KEY     | review_pkey                            |
+| review               | UNIQUE          | uq_review_paper_reviewer               |
+| reviewer             | CHECK           | ck_reviewer_experience                 |
+| reviewer             | FOREIGN KEY     | reviewer_reviewer_id_fkey              |
+| reviewer             | PRIMARY KEY     | reviewer_pkey                          |
+| reviewer_expertise   | FOREIGN KEY     | reviewer_expertise_reviewer_id_fkey    |
+| reviewer_expertise   | PRIMARY KEY     | reviewer_expertise_pkey                |
+| track                | FOREIGN KEY     | fk_track_coordinator_pool              |
+| track                | FOREIGN KEY     | track_conference_id_fkey               |
+| track                | FOREIGN KEY     | track_coordinator_id_fkey              |
+| track                | PRIMARY KEY     | track_pkey                             |
++----------------------+-----------------+----------------------------------------+
+(48 rows)
+
+
+==============================================================================
+TASK 2 - Insert statements (seed data from sql/seed.sql)
+==============================================================================
+Executing seed.sql through SQLAlchemy ...
+
+--- 2. Row count of every table
+SQL:
+    SELECT 'app_user' AS table_name, COUNT(*) AS row_count FROM app_user
+    UNION ALL
+    SELECT 'author' AS table_name, COUNT(*) AS row_count FROM author
+    UNION ALL
+    SELECT 'author_research_area' AS table_name, COUNT(*) AS row_count FROM author_research_area
+    UNION ALL
+    SELECT 'reviewer' AS table_name, COUNT(*) AS row_count FROM reviewer
+    UNION ALL
+    SELECT 'reviewer_expertise' AS table_name, COUNT(*) AS row_count FROM reviewer_expertise
+    UNION ALL
+    SELECT 'conference' AS table_name, COUNT(*) AS row_count FROM conference
+    UNION ALL
+    SELECT 'conference_host' AS table_name, COUNT(*) AS row_count FROM conference_host
+    UNION ALL
+    SELECT 'conference_reviewer' AS table_name, COUNT(*) AS row_count FROM conference_reviewer
+    UNION ALL
+    SELECT 'track' AS table_name, COUNT(*) AS row_count FROM track
+    UNION ALL
+    SELECT 'conference_session' AS table_name, COUNT(*) AS row_count FROM conference_session
+    UNION ALL
+    SELECT 'paper' AS table_name, COUNT(*) AS row_count FROM paper
+    UNION ALL
+    SELECT 'paper_keyword' AS table_name, COUNT(*) AS row_count FROM paper_keyword
+    UNION ALL
+    SELECT 'paper_author' AS table_name, COUNT(*) AS row_count FROM paper_author
+    UNION ALL
+    SELECT 'paper_version' AS table_name, COUNT(*) AS row_count FROM paper_version
+    UNION ALL
+    SELECT 'review' AS table_name, COUNT(*) AS row_count FROM review
+
++----------------------+-----------+
+| table_name           | row_count |
++----------------------+-----------+
+| app_user             | 12        |
+| author               | 8         |
+| author_research_area | 15        |
+| reviewer             | 8         |
+| reviewer_expertise   | 14        |
+| conference           | 3         |
+| conference_host      | 5         |
+| conference_reviewer  | 12        |
+| track                | 6         |
+| conference_session   | 5         |
+| paper                | 12        |
+| paper_keyword        | 24        |
+| paper_author         | 22        |
+| paper_version        | 15        |
+| review               | 16        |
++----------------------+-----------+
+(15 rows)
+
+To restore this initial dataset at any time run:  python init_db.py
+
+==============================================================================
+TASK 3.1 - Update Arman Armanov's phone number (identified by email)
+==============================================================================
+BEFORE:
+SQL:
+    SELECT user_id, given_name, surname, email, phone_number
+    FROM app_user
+    WHERE email = :email
+Bound parameters: {'email': 'arman.armanov@example.com'}
+
++---------+------------+---------+---------------------------+--------------+
+| user_id | given_name | surname | email                     | phone_number |
++---------+------------+---------+---------------------------+--------------+
+| 1       | Arman      | Armanov | arman.armanov@example.com | +77011112233 |
++---------+------------+---------+---------------------------+--------------+
+(1 row)
+
+STATEMENT:
+SQL:
+    UPDATE app_user
+    SET phone_number = :phone
+    WHERE email = :email
+Bound parameters: {'email': 'arman.armanov@example.com', 'phone': '+77773414141'}
+
+Rows affected: 1
+
+AFTER (inside the same transaction):
++---------+------------+---------+---------------------------+--------------+
+| user_id | given_name | surname | email                     | phone_number |
++---------+------------+---------+---------------------------+--------------+
+| 1       | Arman      | Armanov | arman.armanov@example.com | +77773414141 |
++---------+------------+---------+---------------------------+--------------+
+(1 row)
+
+Transaction ROLLED BACK -> seed data restored. Re-check:
++---------+------------+---------+---------------------------+--------------+
+| user_id | given_name | surname | email                     | phone_number |
++---------+------------+---------+---------------------------+--------------+
+| 1       | Arman      | Armanov | arman.armanov@example.com | +77011112233 |
++---------+------------+---------+---------------------------+--------------+
+(1 row)
+
+
+==============================================================================
+TASK 3.2 - Extend review deadlines: +7 days in Astana, +3 days elsewhere (single UPDATE)
+==============================================================================
+BEFORE:
+SQL:
+    SELECT conference_id, acronym, city, review_deadline
+    FROM conference
+    ORDER BY conference_id
+
++---------------+------------+----------+-----------------+
+| conference_id | acronym    | city     | review_deadline |
++---------------+------------+----------+-----------------+
+| 1             | AICDS 2026 | Astana   | 2026-04-15      |
+| 2             | CASAI 2027 | Almaty   | 2026-12-01      |
+| 3             | SRWSE 2027 | Tashkent | 2027-03-01      |
++---------------+------------+----------+-----------------+
+(3 rows)
+
+STATEMENT:
+SQL:
+    UPDATE conference
+    SET review_deadline = review_deadline +
+        CASE WHEN city = :city THEN :astana_days ELSE :other_days END
+    -- PostgreSQL: DATE + INTEGER adds that many days
+Bound parameters: {'city': 'Astana', 'astana_days': 7, 'other_days': 3}
+
+Rows affected: 3
+
+AFTER (inside the same transaction):
++---------------+------------+----------+-----------------+
+| conference_id | acronym    | city     | review_deadline |
++---------------+------------+----------+-----------------+
+| 1             | AICDS 2026 | Astana   | 2026-04-22      |
+| 2             | CASAI 2027 | Almaty   | 2026-12-04      |
+| 3             | SRWSE 2027 | Tashkent | 2027-03-04      |
++---------------+------------+----------+-----------------+
+(3 rows)
+
+Transaction ROLLED BACK -> seed data restored. Re-check:
++---------------+------------+----------+-----------------+
+| conference_id | acronym    | city     | review_deadline |
++---------------+------------+----------+-----------------+
+| 1             | AICDS 2026 | Astana   | 2026-04-15      |
+| 2             | CASAI 2027 | Almaty   | 2026-12-01      |
+| 3             | SRWSE 2027 | Tashkent | 2027-03-01      |
++---------------+------------+----------+-----------------+
+(3 rows)
+
+
+==============================================================================
+TASK 4.1 (context) - withdrawn papers and their corresponding authors
+==============================================================================
+--- Withdrawn papers
+SQL:
+    SELECT p.paper_id, p.title, p.status, u.email AS corresponding_author_email
+    FROM paper p
+    JOIN paper_author pa ON pa.paper_id = p.paper_id AND pa.is_corresponding
+    JOIN app_user u      ON u.user_id = pa.author_id
+    WHERE p.status = :status
+    ORDER BY p.paper_id
+Bound parameters: {'status': 'withdrawn'}
+
++----------+-------------------------------------------+-----------+-----------------------------+
+| paper_id | title                                     | status    | corresponding_author_email  |
++----------+-------------------------------------------+-----------+-----------------------------+
+| 10       | Benchmarking Gradient Boosting Libraries  | withdrawn | amina.aminova@example.com   |
+| 11       | Sentiment Analysis of Kazakh Social Media | withdrawn | amina.aminova@example.com   |
+| 12       | Named Entity Recognition for Kazakh News  | withdrawn | saule.akhmetova@example.com |
++----------+-------------------------------------------+-----------+-----------------------------+
+(3 rows)
+
+
+==============================================================================
+TASK 4.1 - Delete withdrawn papers whose corresponding author is Amina Aminova
+(paper_author, paper_keyword, paper_version and review rows are removed by ON DELETE CASCADE)
+==============================================================================
+BEFORE:
+SQL:
+    SELECT 'paper' AS table_name, COUNT(*) AS rows_total,
+           COUNT(*) FILTER (WHERE status = 'withdrawn') AS withdrawn_papers
+    FROM paper
+    UNION ALL SELECT 'paper_author',  COUNT(*), NULL FROM paper_author
+    UNION ALL SELECT 'paper_keyword', COUNT(*), NULL FROM paper_keyword
+    UNION ALL SELECT 'paper_version', COUNT(*), NULL FROM paper_version
+    UNION ALL SELECT 'review',        COUNT(*), NULL FROM review
+    UNION ALL SELECT 'app_user',      COUNT(*), NULL FROM app_user
+    UNION ALL SELECT 'track',         COUNT(*), NULL FROM track
+    UNION ALL SELECT 'conference',    COUNT(*), NULL FROM conference
+
++---------------+------------+------------------+
+| table_name    | rows_total | withdrawn_papers |
++---------------+------------+------------------+
+| paper         | 12         | 3                |
+| paper_author  | 22         | NULL             |
+| paper_keyword | 24         | NULL             |
+| paper_version | 15         | NULL             |
+| review        | 16         | NULL             |
+| app_user      | 12         | NULL             |
+| track         | 6          | NULL             |
+| conference    | 3          | NULL             |
++---------------+------------+------------------+
+(8 rows)
+
+STATEMENT:
+SQL:
+    DELETE FROM paper p
+    WHERE p.status = :status
+      AND EXISTS (SELECT 1
+                  FROM paper_author pa
+                  JOIN app_user u ON u.user_id = pa.author_id
+                  WHERE pa.paper_id = p.paper_id
+                    AND pa.is_corresponding
+                    AND u.email = :email)
+Bound parameters: {'email': 'amina.aminova@example.com', 'status': 'withdrawn'}
+
+Rows affected: 2
+
+AFTER (inside the same transaction):
++---------------+------------+------------------+
+| table_name    | rows_total | withdrawn_papers |
++---------------+------------+------------------+
+| paper         | 10         | 1                |
+| paper_author  | 19         | NULL             |
+| paper_keyword | 20         | NULL             |
+| paper_version | 13         | NULL             |
+| review        | 14         | NULL             |
+| app_user      | 12         | NULL             |
+| track         | 6          | NULL             |
+| conference    | 3          | NULL             |
++---------------+------------+------------------+
+(8 rows)
+
+Transaction ROLLED BACK -> seed data restored. Re-check:
++---------------+------------+------------------+
+| table_name    | rows_total | withdrawn_papers |
++---------------+------------+------------------+
+| paper         | 12         | 3                |
+| paper_author  | 22         | NULL             |
+| paper_keyword | 24         | NULL             |
+| paper_version | 15         | NULL             |
+| review        | 16         | NULL             |
+| app_user      | 12         | NULL             |
+| track         | 6          | NULL             |
+| conference    | 3          | NULL             |
++---------------+------------+------------------+
+(8 rows)
+
+
+==============================================================================
+TASK 4.2 - Delete empty sessions of conferences held in Astana
+==============================================================================
+BEFORE:
+SQL:
+    SELECT s.session_id, s.title, c.acronym, c.city,
+           (SELECT COUNT(*) FROM paper p WHERE p.session_id = s.session_id) AS assigned_papers
+    FROM conference_session s
+    JOIN conference c ON c.conference_id = s.conference_id
+    ORDER BY s.session_id
+
++------------+-------------------------------+------------+--------+-----------------+
+| session_id | title                         | acronym    | city   | assigned_papers |
++------------+-------------------------------+------------+--------+-----------------+
+| 1          | Database Systems I            | AICDS 2026 | Astana | 2               |
+| 2          | Analytics and ML on Data      | AICDS 2026 | Astana | 1               |
+| 3          | Late-Breaking Results         | AICDS 2026 | Astana | 0               |
+| 4          | Machine Learning Applications | CASAI 2027 | Almaty | 1               |
+| 5          | NLP and Speech                | CASAI 2027 | Almaty | 0               |
++------------+-------------------------------+------------+--------+-----------------+
+(5 rows)
+
+STATEMENT:
+SQL:
+    DELETE FROM conference_session s
+    WHERE s.conference_id IN (SELECT conference_id FROM conference WHERE city = :city)
+      AND NOT EXISTS (SELECT 1 FROM paper p WHERE p.session_id = s.session_id)
+Bound parameters: {'city': 'Astana'}
+
+Rows affected: 1
+
+AFTER (inside the same transaction):
++------------+-------------------------------+------------+--------+-----------------+
+| session_id | title                         | acronym    | city   | assigned_papers |
++------------+-------------------------------+------------+--------+-----------------+
+| 1          | Database Systems I            | AICDS 2026 | Astana | 2               |
+| 2          | Analytics and ML on Data      | AICDS 2026 | Astana | 1               |
+| 4          | Machine Learning Applications | CASAI 2027 | Almaty | 1               |
+| 5          | NLP and Speech                | CASAI 2027 | Almaty | 0               |
++------------+-------------------------------+------------+--------+-----------------+
+(4 rows)
+
+Transaction ROLLED BACK -> seed data restored. Re-check:
++------------+-------------------------------+------------+--------+-----------------+
+| session_id | title                         | acronym    | city   | assigned_papers |
++------------+-------------------------------+------------+--------+-----------------+
+| 1          | Database Systems I            | AICDS 2026 | Astana | 2               |
+| 2          | Analytics and ML on Data      | AICDS 2026 | Astana | 1               |
+| 3          | Late-Breaking Results         | AICDS 2026 | Astana | 0               |
+| 4          | Machine Learning Applications | CASAI 2027 | Almaty | 1               |
+| 5          | NLP and Speech                | CASAI 2027 | Almaty | 0               |
++------------+-------------------------------+------------+--------+-----------------+
+(5 rows)
+
+
+==============================================================================
+TASK 5 - Simple queries
+==============================================================================
+--- 5.1 Accepted papers with corresponding author, track and conference
+SQL:
+    SELECT p.paper_id, p.title,
+           u.given_name || ' ' || u.surname AS corresponding_author,
+           u.email AS corresponding_email,
+           t.name AS track_name,
+           c.conference_id, c.acronym
+    FROM paper p
+    JOIN track t         ON t.track_id = p.track_id
+    JOIN conference c    ON c.conference_id = t.conference_id
+    JOIN paper_author pa ON pa.paper_id = p.paper_id AND pa.is_corresponding
+    JOIN app_user u      ON u.user_id = pa.author_id
+    WHERE p.status = :status
+    ORDER BY p.paper_id
+Bound parameters: {'status': 'accepted'}
+
++----------+----------------------------------------------------------+----------------------+-----------------------------+---------------------------+---------------+------------+
+| paper_id | title                                                    | corresponding_author | corresponding_email         | track_name                | conference_id | acronym    |
++----------+----------------------------------------------------------+----------------------+-----------------------------+---------------------------+---------------+------------+
+| 1        | Adaptive Indexing for Hybrid Transactional Workloads     | Timur Bekov          | timur.bekov@example.com     | Database Systems          | 1             | AICDS 2026 |
+| 2        | Cost-Based Optimization of Recursive SQL Queries         | Madina Ospanova      | madina.ospanova@example.com | Database Systems          | 1             | AICDS 2026 |
+| 3        | Scalable Machine Learning Pipelines over Relational Data | Elena Petrova        | elena.petrova@example.com   | Data Mining and Analytics | 1             | AICDS 2026 |
+| 4        | Clustering Retail Transactions in Kazakhstan             | Saule Akhmetova      | saule.akhmetova@example.com | Data Mining and Analytics | 1             | AICDS 2026 |
+| 7        | Federated Learning for Medical Imaging in Central Asia   | Arman Armanov        | arman.armanov@example.com   | Machine Learning          | 2             | CASAI 2027 |
++----------+----------------------------------------------------------+----------------------+-----------------------------+---------------------------+---------------+------------+
+(5 rows)
+
+--- 5.2 Papers whose abstract contains 'machine learning' (case-insensitive)
+SQL:
+    SELECT p.paper_id, p.title
+    FROM paper p
+    WHERE p.abstract ILIKE '%' || :phrase || '%'
+    ORDER BY p.paper_id
+Bound parameters: {'phrase': 'machine learning'}
+
++----------+----------------------------------------------------------+
+| paper_id | title                                                    |
++----------+----------------------------------------------------------+
+| 3        | Scalable Machine Learning Pipelines over Relational Data |
+| 6        | Detecting Anomalies in Industrial Sensor Streams         |
+| 10       | Benchmarking Gradient Boosting Libraries                 |
++----------+----------------------------------------------------------+
+(3 rows)
+
+--- 5.3 Versions of the selected paper, highest version first
+SQL:
+    SELECT v.version_no, v.file_location, v.uploaded_at
+    FROM paper_version v
+    WHERE v.paper_id = :paper_id
+    ORDER BY v.version_no DESC
+Bound parameters: {'paper_id': 2}
+
++------------+------------------------+---------------------+
+| version_no | file_location          | uploaded_at         |
++------------+------------------------+---------------------+
+| 3          | /files/papers/2/v3.pdf | 2026-05-03 21:05:00 |
+| 1          | /files/papers/2/v1.pdf | 2026-02-20 09:00:00 |
++------------+------------------------+---------------------+
+(2 rows)
+
+--- 5.4 Pool reviewers with 'Databases' expertise and >= 3 years experience
+SQL:
+    SELECT u.user_id AS reviewer_id,
+           u.given_name || ' ' || u.surname AS full_name,
+           u.email
+    FROM conference_reviewer cr
+    JOIN reviewer r ON r.reviewer_id = cr.reviewer_id
+    JOIN app_user u ON u.user_id = r.reviewer_id
+    WHERE cr.conference_id = :conference_id
+      AND r.years_experience >= :min_years
+      AND EXISTS (SELECT 1 FROM reviewer_expertise e
+                  WHERE e.reviewer_id = r.reviewer_id AND e.area_label = :area)
+    ORDER BY u.user_id
+Bound parameters: {'conference_id': 1, 'area': 'Databases', 'min_years': 3}
+
++-------------+-----------------+-----------------------------+
+| reviewer_id | full_name       | email                       |
++-------------+-----------------+-----------------------------+
+| 1           | Arman Armanov   | arman.armanov@example.com   |
+| 3           | Dana Sultanova  | dana.sultanova@example.com  |
+| 8           | Nurlan Zhakupov | nurlan.zhakupov@example.com |
++-------------+-----------------+-----------------------------+
+(3 rows)
+
+
+==============================================================================
+TASK 6 - Complex (aggregate) queries
+==============================================================================
+--- 6.1 Papers and distinct authors per track (empty tracks report 0)
+SQL:
+    SELECT t.track_id, t.name AS track_name, t.conference_id,
+           COUNT(DISTINCT p.paper_id)   AS paper_count,
+           COUNT(DISTINCT pa.author_id) AS distinct_author_count
+    FROM track t
+    LEFT JOIN paper p         ON p.track_id = t.track_id
+    LEFT JOIN paper_author pa ON pa.paper_id = p.paper_id
+    GROUP BY t.track_id, t.name, t.conference_id
+    ORDER BY t.track_id
+
++----------+-----------------------------+---------------+-------------+-----------------------+
+| track_id | track_name                  | conference_id | paper_count | distinct_author_count |
++----------+-----------------------------+---------------+-------------+-----------------------+
+| 1        | Database Systems            | 1             | 3           | 5                     |
+| 2        | Data Mining and Analytics   | 1             | 3           | 3                     |
+| 3        | Industry Track              | 1             | 0           | 0                     |
+| 4        | Machine Learning            | 2             | 3           | 6                     |
+| 5        | Natural Language Processing | 2             | 3           | 4                     |
+| 6        | Software Testing            | 3             | 0           | 0                     |
++----------+-----------------------------+---------------+-------------+-----------------------+
+(6 rows)
+
+--- 6.2 Completed reviews and average overall score per reviewer
+SQL:
+    SELECT r.reviewer_id,
+           u.given_name || ' ' || u.surname     AS full_name,
+           COUNT(rv.review_id)                  AS review_count,
+           ROUND(AVG(rv.overall_score), 2)      AS avg_overall_score
+    FROM reviewer r
+    JOIN app_user u     ON u.user_id = r.reviewer_id
+    LEFT JOIN review rv ON rv.reviewer_id = r.reviewer_id
+    GROUP BY r.reviewer_id, u.given_name, u.surname
+    ORDER BY r.reviewer_id
+
++-------------+-----------------+--------------+-------------------+
+| reviewer_id | full_name       | review_count | avg_overall_score |
++-------------+-----------------+--------------+-------------------+
+| 1           | Arman Armanov   | 3            | 3.00              |
+| 3           | Dana Sultanova  | 4            | 4.00              |
+| 4           | Timur Bekov     | 1            | 3.00              |
+| 6           | Yerlan Kassymov | 3            | 3.67              |
+| 7           | Madina Ospanova | 1            | 3.00              |
+| 8           | Nurlan Zhakupov | 0            | NULL              |
+| 10          | Ruslan Ibraev   | 2            | 3.50              |
+| 11          | Elena Petrova   | 2            | 3.50              |
++-------------+-----------------+--------------+-------------------+
+(8 rows)
+
+--- 6.3 Per conference: total papers, accepted papers, average review score
+    (paper counts and review averages are aggregated separately so
+     multiple reviews cannot inflate paper counts)
+SQL:
+    WITH paper_counts AS (
+        SELECT t.conference_id,
+               COUNT(*)                                     AS total_papers,
+               COUNT(*) FILTER (WHERE p.status = 'accepted') AS accepted_papers
+        FROM paper p
+        JOIN track t ON t.track_id = p.track_id
+        GROUP BY t.conference_id
+    ),
+    review_scores AS (
+        SELECT t.conference_id, AVG(rv.overall_score) AS avg_score
+        FROM review rv
+        JOIN paper p ON p.paper_id = rv.paper_id
+        JOIN track t ON t.track_id = p.track_id
+        GROUP BY t.conference_id
+    )
+    SELECT c.conference_id, c.acronym,
+           COALESCE(pc.total_papers, 0)    AS total_papers,
+           COALESCE(pc.accepted_papers, 0) AS accepted_papers,
+           ROUND(rs.avg_score, 2)          AS avg_overall_score
+    FROM conference c
+    LEFT JOIN paper_counts pc  ON pc.conference_id = c.conference_id
+    LEFT JOIN review_scores rs ON rs.conference_id = c.conference_id
+    ORDER BY c.conference_id
+
++---------------+------------+--------------+-----------------+-------------------+
+| conference_id | acronym    | total_papers | accepted_papers | avg_overall_score |
++---------------+------------+--------------+-----------------+-------------------+
+| 1             | AICDS 2026 | 6            | 4               | 3.55              |
+| 2             | CASAI 2027 | 6            | 1               | 3.40              |
+| 3             | SRWSE 2027 | 0            | 0               | NULL              |
++---------------+------------+--------------+-----------------+-------------------+
+(3 rows)
+
+--- 6.4 Reviewers with more reviews than the average per reviewer
+    (average includes reviewers with zero reviews)
+SQL:
+    WITH reviewer_counts AS (
+        SELECT r.reviewer_id,
+               u.given_name || ' ' || u.surname AS full_name,
+               COUNT(rv.review_id)              AS review_count
+        FROM reviewer r
+        JOIN app_user u     ON u.user_id = r.reviewer_id
+        LEFT JOIN review rv ON rv.reviewer_id = r.reviewer_id
+        GROUP BY r.reviewer_id, u.given_name, u.surname
+    ),
+    overall AS (
+        SELECT AVG(review_count) AS avg_reviews_per_reviewer FROM reviewer_counts
+    )
+    SELECT rc.reviewer_id, rc.full_name, rc.review_count,
+           ROUND(o.avg_reviews_per_reviewer, 2) AS avg_reviews_per_reviewer
+    FROM reviewer_counts rc
+    CROSS JOIN overall o
+    WHERE rc.review_count > o.avg_reviews_per_reviewer
+    ORDER BY rc.review_count DESC, rc.reviewer_id
+
++-------------+-----------------+--------------+--------------------------+
+| reviewer_id | full_name       | review_count | avg_reviews_per_reviewer |
++-------------+-----------------+--------------+--------------------------+
+| 3           | Dana Sultanova  | 4            | 2.00                     |
+| 1           | Arman Armanov   | 3            | 2.00                     |
+| 6           | Yerlan Kassymov | 3            | 2.00                     |
++-------------+-----------------+--------------+--------------------------+
+(3 rows)
+
+
+==============================================================================
+TASK 7 - Derived attribute: acceptance rate per conference
+==============================================================================
+--- 7. Acceptance rate = 100 * accepted / (accepted + rejected)
+SQL:
+    SELECT c.conference_id, c.acronym,
+           COUNT(p.paper_id) FILTER (WHERE p.status = 'accepted') AS accepted_count,
+           COUNT(p.paper_id) FILTER (WHERE p.status = 'rejected') AS rejected_count,
+           ROUND(100.0 * COUNT(p.paper_id) FILTER (WHERE p.status = 'accepted')
+                 / NULLIF(COUNT(p.paper_id) FILTER (WHERE p.status IN ('accepted', 'rejected')), 0),
+                 2) AS acceptance_rate_pct
+    FROM conference c
+    LEFT JOIN track t ON t.conference_id = c.conference_id
+    LEFT JOIN paper p ON p.track_id = t.track_id
+    GROUP BY c.conference_id, c.acronym
+    ORDER BY c.conference_id
+
++---------------+------------+----------------+----------------+---------------------+
+| conference_id | acronym    | accepted_count | rejected_count | acceptance_rate_pct |
++---------------+------------+----------------+----------------+---------------------+
+| 1             | AICDS 2026 | 4              | 2              | 66.67               |
+| 2             | CASAI 2027 | 1              | 0              | 100.00              |
+| 3             | SRWSE 2027 | 0              | 0              | NULL                |
++---------------+------------+----------------+----------------+---------------------+
+(3 rows)
+
+
+==============================================================================
+TASK 8 - View accepted_paper_schedule
+==============================================================================
+Creating the view:
+SQL:
+    -- Task 8: accepted_paper_schedule (one row per paper assigned to a session)
+    CREATE OR REPLACE VIEW accepted_paper_schedule AS
+    SELECT p.paper_id,
+           p.title                                   AS paper_title,
+           c.conference_id,
+           c.acronym                                 AS conference_acronym,
+           t.name                                    AS track_name,
+           s.session_id,
+           s.title                                   AS session_title,
+           s.session_date,
+           s.start_time,
+           s.end_time,
+           s.room_label,
+           ch.given_name || ' ' || ch.surname        AS chair_full_name,
+           ca.given_name || ' ' || ca.surname        AS corresponding_author_name,
+           ca.email                                  AS corresponding_author_email
+    FROM paper p
+    JOIN track t               ON t.track_id = p.track_id
+    JOIN conference_session s  ON s.session_id = p.session_id
+    JOIN conference c          ON c.conference_id = s.conference_id
+    JOIN app_user ch           ON ch.user_id = s.chair_id
+    LEFT JOIN paper_author pa  ON pa.paper_id = p.paper_id AND pa.is_corresponding
+    LEFT JOIN app_user ca      ON ca.user_id = pa.author_id
+    WHERE p.status = 'accepted';
+
+--- 8a. Confirm it is a VIEW (not a stored table)
+SQL:
+    SELECT table_name, table_type
+    FROM information_schema.tables
+    WHERE table_name = 'accepted_paper_schedule'
+
++-------------------------+------------+
+| table_name              | table_type |
++-------------------------+------------+
+| accepted_paper_schedule | VIEW       |
++-------------------------+------------+
+(1 row)
+
+--- 8b. Query the view
+SQL:
+    SELECT *
+    FROM accepted_paper_schedule
+    ORDER BY conference_id, session_date, start_time, session_id, paper_id
+
++----------+----------------------------------------------------------+---------------+--------------------+---------------------------+------------+-------------------------------+--------------+------------+----------+--------------+-----------------+---------------------------+-----------------------------+
+| paper_id | paper_title                                              | conference_id | conference_acronym | track_name                | session_id | session_title                 | session_date | start_time | end_time | room_label   | chair_full_name | corresponding_author_name | corresponding_author_email  |
++----------+----------------------------------------------------------+---------------+--------------------+---------------------------+------------+-------------------------------+--------------+------------+----------+--------------+-----------------+---------------------------+-----------------------------+
+| 1        | Adaptive Indexing for Hybrid Transactional Workloads     | 1             | AICDS 2026         | Database Systems          | 1          | Database Systems I            | 2026-06-15   | 09:00:00   | 10:30:00 | Hall A       | Dana Sultanova  | Timur Bekov               | timur.bekov@example.com     |
+| 2        | Cost-Based Optimization of Recursive SQL Queries         | 1             | AICDS 2026         | Database Systems          | 1          | Database Systems I            | 2026-06-15   | 09:00:00   | 10:30:00 | Hall A       | Dana Sultanova  | Madina Ospanova           | madina.ospanova@example.com |
+| 3        | Scalable Machine Learning Pipelines over Relational Data | 1             | AICDS 2026         | Data Mining and Analytics | 2          | Analytics and ML on Data      | 2026-06-16   | 11:00:00   | 12:30:00 | Room 204     | Arman Armanov   | Elena Petrova             | elena.petrova@example.com   |
+| 7        | Federated Learning for Medical Imaging in Central Asia   | 2             | CASAI 2027         | Machine Learning          | 4          | Machine Learning Applications | 2027-02-11   | 10:00:00   | 11:30:00 | Auditorium 1 | Yerlan Kassymov | Arman Armanov             | arman.armanov@example.com   |
++----------+----------------------------------------------------------+---------------+--------------------+---------------------------+------------+-------------------------------+--------------+------------+----------+--------------+-----------------+---------------------------+-----------------------------+
+(4 rows)
+
+
+All tasks completed. Database is in the original seed state.

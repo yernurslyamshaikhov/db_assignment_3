@@ -1,0 +1,3 @@
+Video presentation (Google Drive, viewable by anyone with the link): <PASTE GOOGLE DRIVE LINK>
+Deployed application: <PASTE https://....onrender.com URL>
+Demo credentials: none required (no authentication)

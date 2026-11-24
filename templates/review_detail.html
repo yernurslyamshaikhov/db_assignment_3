@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Review {{ r.review_id }}</h1>
+<table>
+  <tr><th>Paper</th><td><a href="{{ url_for('paper_detail', pid=r.paper_id) }}">{{ r.paper_id }}: {{ r.title }}</a></td></tr>
+  <tr><th>Reviewer</th><td><a href="{{ url_for('user_detail', uid=r.reviewer_id) }}">{{ r.reviewer }}</a></td></tr>
+  <tr><th>Overall score</th><td>{{ r.overall_score }}</td></tr>
+  <tr><th>Recommendation</th><td>{{ r.recommendation }}</td></tr>
+  <tr><th>Comments for authors</th><td>{{ r.comments_for_authors }}</td></tr>
+  <tr><th>Confidential comments</th><td>{{ r.confidential_comments or '' }}</td></tr>
+  <tr><th>Submitted</th><td>{{ r.review_submission_date }}</td></tr>
+</table>
+<p><a class="btn" href="{{ url_for('review_edit', rid=r.review_id) }}">Edit</a>
+<form class="inline" method="post" action="{{ url_for('review_delete', rid=r.review_id) }}" onsubmit="return confirm('Delete this review?');">
+  <button class="danger">Delete review</button></form></p>
+{% endblock %}

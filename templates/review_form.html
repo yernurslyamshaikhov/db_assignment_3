@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ 'Edit review %d'|format(rid) if rid else 'New review' }}</h1>
+<form method="post">
+  <label>Paper</label>
+  <select name="paper_id" required>
+    {% for p in papers %}<option value="{{ p.paper_id }}" {{ 'selected' if form.get('paper_id')|string == p.paper_id|string }}>{{ p.paper_id }}: {{ p.title }} ({{ p.acronym }})</option>{% endfor %}
+  </select>
+  <label>Reviewer</label>
+  <select name="reviewer_id" required>
+    {% for r in reviewers %}<option value="{{ r.reviewer_id }}" {{ 'selected' if form.get('reviewer_id')|string == r.reviewer_id|string }}>{{ r.reviewer_id }}: {{ r.name }}</option>{% endfor %}
+  </select>
+  <label>Overall score (integer 1&ndash;5)</label>
+  <input type="number" name="overall_score" value="{{ form.get('overall_score','') }}" required>
+  <label>Recommendation</label>
+  <select name="recommendation">{% for x in ['accept','reject'] %}<option {{ 'selected' if form.get('recommendation') == x }}>{{ x }}</option>{% endfor %}</select>
+  <label>Comments for authors</label><textarea name="comments_for_authors" required>{{ form.get('comments_for_authors','') }}</textarea>
+  <label>Confidential comments for organizers (optional)</label><textarea name="confidential_comments">{{ form.get('confidential_comments','') }}</textarea>
+  <label>Review submission date</label><input type="date" name="review_submission_date" value="{{ form.get('review_submission_date','') }}" required>
+  <p><button>Save</button> <a href="{{ url_for('review_detail', rid=rid) if rid else url_for('reviews_list') }}">Cancel</a></p>
+</form>
+{% endblock %}

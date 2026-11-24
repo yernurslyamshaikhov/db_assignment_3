@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Reviews <span class="muted">(completed reviews only)</span></h1>
+<p><a class="btn" href="{{ url_for('review_new') }}">+ New review</a></p>
+<table>
+  <tr><th>ID</th><th>Paper</th><th>Reviewer</th><th>Score</th><th>Recommendation</th><th>Date</th><th></th></tr>
+  {% for r in reviews %}
+  <tr><td><a href="{{ url_for('review_detail', rid=r.review_id) }}">{{ r.review_id }}</a></td>
+      <td>{{ r.paper_id }}: {{ r.title }}</td><td>{{ r.reviewer }}</td><td>{{ r.overall_score }}</td>
+      <td>{{ r.recommendation }}</td><td>{{ r.review_submission_date }}</td>
+      <td><a href="{{ url_for('review_edit', rid=r.review_id) }}">edit</a></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

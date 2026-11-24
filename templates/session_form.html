@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ 'Edit session %d'|format(sid) if sid else 'New session' }}</h1>
+<form method="post">
+  <label>Conference</label>
+  <select name="conference_id" required>
+    {% for c in confs %}<option value="{{ c.conference_id }}" {{ 'selected' if form.get('conference_id')|string == c.conference_id|string }}>{{ c.acronym }} ({{ c.city }})</option>{% endfor %}
+  </select>
+  <label>Title</label><input type="text" name="title" value="{{ form.get('title','') }}" required>
+  <label>Date</label><input type="date" name="session_date" value="{{ form.get('session_date','') }}" required>
+  <label>Start time</label><input type="time" name="start_time" value="{{ form.get('start_time','') }}" required>
+  <label>End time (must be later than start)</label><input type="time" name="end_time" value="{{ form.get('end_time','') }}" required>
+  <label>Room label</label><input type="text" name="room_label" value="{{ form.get('room_label','') }}" required>
+  <label>Chair (must be in the conference's reviewer pool)</label>
+  <select name="chair_id" required>
+    {% for r in reviewers %}<option value="{{ r.reviewer_id }}" {{ 'selected' if form.get('chair_id')|string == r.reviewer_id|string }}>{{ r.reviewer_id }}: {{ r.name }} &mdash; pools: {{ r.pools or 'none' }}</option>{% endfor %}
+  </select>
+  <p><button>Save</button> <a href="{{ url_for('session_detail', sid=sid) if sid else url_for('sessions_list') }}">Cancel</a></p>
+</form>
+{% endblock %}

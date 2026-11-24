@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Conferences, tracks and reviewer pools <span class="muted">(read-only, seeded)</span></h1>
+<table>
+  <tr><th>ID</th><th>Acronym</th><th>Name</th><th>City</th><th>Dates</th><th>Submission / review deadline</th>
+      <th>Hosts</th><th>Reviewer pool</th></tr>
+  {% for c in confs %}
+  <tr><td>{{ c.conference_id }}</td><td>{{ c.acronym }}</td><td>{{ c.name }}</td><td>{{ c.city }}, {{ c.country }}</td>
+      <td>{{ c.start_date }} &ndash; {{ c.end_date }}</td><td>{{ c.submission_deadline }} / {{ c.review_deadline }}</td>
+      <td>{{ c.hosts }}</td><td>{{ c.pool }}</td></tr>
+  {% endfor %}
+</table>
+<h2>Tracks</h2>
+<table>
+  <tr><th>ID</th><th>Conference</th><th>Name</th><th>Research area</th><th>Coordinator</th><th>Description</th></tr>
+  {% for t in tracks %}
+  <tr><td>{{ t.track_id }}</td><td>{{ t.acronym }}</td><td>{{ t.name }}</td><td>{{ t.research_area }}</td>
+      <td>{{ t.coordinator }}</td><td>{{ t.description }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

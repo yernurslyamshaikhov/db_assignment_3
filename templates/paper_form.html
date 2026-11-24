@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ 'Edit paper %d'|format(pid) if pid else 'New paper' }}</h1>
+<form method="post">
+  <label>Track</label>
+  <select name="track_id" required>
+    {% for t in tracks %}<option value="{{ t.track_id }}" {{ 'selected' if form.get('track_id')|string == t.track_id|string }}>{{ t.acronym }} &mdash; {{ t.name }}</option>{% endfor %}
+  </select>
+  <label>Title</label><input type="text" name="title" value="{{ form.get('title','') }}" required>
+  <label>Abstract</label><textarea name="abstract" required>{{ form.get('abstract','') }}</textarea>
+  <label>Submission date</label><input type="date" name="submission_date" value="{{ form.get('submission_date','') }}" required>
+  <label>Status</label>
+  <select name="status">{% for s in statuses %}<option {{ 'selected' if form.get('status') == s }}>{{ s }}</option>{% endfor %}</select>
+  <label>Session (only accepted papers, same conference as the track)</label>
+  <select name="session_id">
+    <option value="">&mdash; not scheduled &mdash;</option>
+    {% for s in sessions %}<option value="{{ s.session_id }}" {{ 'selected' if form.get('session_id')|string == s.session_id|string }}>{{ s.acronym }} &mdash; {{ s.session_id }}: {{ s.title }}</option>{% endfor %}
+  </select>
+  <label>Keywords (comma-separated; stored as separate rows)</label>
+  <input type="text" name="keywords" value="{{ form.get('keywords','') }}" required>
+
+  <fieldset><legend>Authors in order (position = row order) &mdash; select the corresponding author</legend>
+  {% for i in range(1, max_authors + 1) %}
+    <div class="row">{{ i }}.
+      <select name="author_{{ i }}">
+        <option value="">&mdash;</option>
+        {% for a in authors %}<option value="{{ a.author_id }}" {{ 'selected' if form.get('author_%d'|format(i))|string == a.author_id|string }}>{{ a.author_id }}: {{ a.name }} ({{ a.email }})</option>{% endfor %}
+      </select>
+      <label style="display:inline;font-weight:normal"><input type="radio" name="corresponding" value="{{ i }}" {{ 'checked' if form.get('corresponding')|string == i|string }}> corresponding</label>
+    </div>
+  {% endfor %}
+  </fieldset>
+
+  {% if not pid %}
+  <fieldset><legend>Initial version (v1)</legend>
+    <label>File location</label><input type="text" name="file_location" value="{{ form.get('file_location','') }}" placeholder="/files/papers/new/v1.pdf" required>
+    <label>Uploaded at (blank = now)</label><input type="datetime-local" name="uploaded_at" value="{{ form.get('uploaded_at','') }}">
+    <label>Change note (optional)</label><input type="text" name="change_note" value="{{ form.get('change_note','') }}">
+  </fieldset>
+  {% else %}
+  <p class="muted">Versions are managed on the paper page.</p>
+  {% endif %}
+  <p><button>Save</button> <a href="{{ url_for('paper_detail', pid=pid) if pid else url_for('papers_list') }}">Cancel</a></p>
+</form>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Paper {{ p.paper_id }}: {{ p.title }}</h1>
+<table>
+  <tr><th>Conference / track</th><td>{{ p.acronym }} &mdash; {{ p.track }}</td></tr>
+  <tr><th>Status</th><td>{{ p.status }}</td></tr>
+  <tr><th>Session</th><td>{% if p.session_id %}<a href="{{ url_for('session_detail', sid=p.session_id) }}">{{ p.session_id }}: {{ p.session_title }}</a>{% else %}not scheduled{% endif %}</td></tr>
+  <tr><th>Submission date</th><td>{{ p.submission_date }}</td></tr>
+  <tr><th>Abstract</th><td>{{ p.abstract }}</td></tr>
+  <tr><th>Keywords</th><td>{{ keywords|map(attribute='keyword')|join(', ') }}</td></tr>
+</table>
+<p><a class="btn" href="{{ url_for('paper_edit', pid=p.paper_id) }}">Edit paper, authors &amp; keywords</a>
+<form class="inline" method="post" action="{{ url_for('paper_delete', pid=p.paper_id) }}" onsubmit="return confirm('Delete paper and all its versions, authorship, keywords and reviews?');">
+  <button class="danger">Delete paper</button></form></p>
+
+<h2>Authors</h2>
+<table><tr><th>Position</th><th>Author</th><th>Email</th><th>Corresponding</th></tr>
+{% for a in authors %}<tr><td>{{ a.author_position }}</td><td><a href="{{ url_for('user_detail', uid=a.author_id) }}">{{ a.name }}</a></td>
+<td>{{ a.email }}</td><td>{{ 'yes' if a.is_corresponding }}</td></tr>{% endfor %}</table>
+
+<h2>Versions <span class="muted">(highest number = current)</span></h2>
+<table><tr><th>No.</th><th>File location</th><th>Uploaded at</th><th>Change note</th><th></th></tr>
+{% for v in versions %}
+<tr>
+  <td>v{{ v.version_no }}{{ ' (current)' if loop.first }}</td>
+  <td><input form="ver{{ v.version_no }}" type="text" name="file_location" value="{{ v.file_location }}" style="width:220px"></td>
+  <td><input form="ver{{ v.version_no }}" type="datetime-local" name="uploaded_at" value="{{ v.uploaded_at.strftime('%Y-%m-%dT%H:%M') }}" style="width:190px"></td>
+  <td><input form="ver{{ v.version_no }}" type="text" name="change_note" value="{{ v.change_note or '' }}" style="width:220px"></td>
+  <td><form id="ver{{ v.version_no }}" class="inline" method="post" action="{{ url_for('version_edit', pid=p.paper_id, v=v.version_no) }}"><button>Save</button></form>
+      <form class="inline" method="post" action="{{ url_for('version_delete', pid=p.paper_id, v=v.version_no) }}"><button class="danger">Delete</button></form></td></tr>
+{% endfor %}
+</table>
+<form method="post" action="{{ url_for('version_add', pid=p.paper_id) }}">
+  <b>Add version:</b>
+  No. <input type="number" name="version_no" value="{{ next_v }}" style="width:60px">
+  File <input type="text" name="file_location" value="/files/papers/{{ p.paper_id }}/v{{ next_v }}.pdf" style="width:220px">
+  Uploaded <input type="datetime-local" name="uploaded_at" value="{{ now }}" style="width:190px">
+  Note <input type="text" name="change_note" style="width:180px">
+  <button>Add</button>
+</form>
+
+<h2>Reviews</h2>
+<p><a class="btn" href="{{ url_for('review_new', paper_id=p.paper_id) }}">+ Add review for this paper</a></p>
+<table><tr><th>ID</th><th>Reviewer</th><th>Score</th><th>Recommendation</th><th>Date</th></tr>
+{% for r in reviews %}<tr><td><a href="{{ url_for('review_detail', rid=r.review_id) }}">{{ r.review_id }}</a></td><td>{{ r.reviewer }}</td>
+<td>{{ r.overall_score }}</td><td>{{ r.recommendation }}</td><td>{{ r.review_submission_date }}</td></tr>{% endfor %}</table>
+{% endblock %}

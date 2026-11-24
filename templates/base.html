@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}Conference Review Admin{% endblock %}</title>
+<style>
+  body { font-family: system-ui, Arial, sans-serif; margin: 0; color: #222; }
+  nav { background: #24364f; padding: 10px 20px; }
+  nav a { color: #fff; margin-right: 18px; text-decoration: none; font-weight: 600; }
+  main { padding: 16px 24px; max-width: 1200px; }
+  table { border-collapse: collapse; margin: 8px 0 18px; }
+  th, td { border: 1px solid #ccc; padding: 4px 8px; text-align: left; vertical-align: top; font-size: 14px; }
+  th { background: #eef1f5; }
+  .flash { padding: 8px 12px; margin: 8px 0; border-radius: 4px; }
+  .flash.ok { background: #e3f6e5; border: 1px solid #7cc285; }
+  .flash.error { background: #fde8e8; border: 1px solid #e08a8a; font-weight: 600; }
+  form.inline { display: inline; }
+  label { display: block; margin-top: 8px; font-weight: 600; font-size: 14px; }
+  input[type=text], input[type=email], input[type=number], input[type=date], input[type=time],
+  input[type=datetime-local], select, textarea { width: 420px; padding: 4px; font-size: 14px; }
+  textarea { height: 70px; }
+  fieldset { margin-top: 12px; border: 1px solid #bbb; }
+  .muted { color: #666; font-size: 13px; }
+  button, .btn { padding: 4px 10px; font-size: 14px; cursor: pointer; }
+  button.danger { background: #c0392b; color: #fff; border: 0; }
+  .row { display: flex; gap: 8px; align-items: center; margin: 4px 0; }
+  .row select { width: 340px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="{{ url_for('index') }}">Home</a>
+  <a href="{{ url_for('users_list') }}">Users</a>
+  <a href="{{ url_for('papers_list') }}">Papers</a>
+  <a href="{{ url_for('reviews_list') }}">Reviews</a>
+  <a href="{{ url_for('sessions_list') }}">Sessions</a>
+  <a href="{{ url_for('reference') }}">Conferences &amp; tracks</a>
+</nav>
+<main>
+  {% for cat, msg in get_flashed_messages(with_categories=true) %}
+    <div class="flash {{ cat }}">{{ msg }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

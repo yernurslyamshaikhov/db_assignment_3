@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Research Conference &amp; Paper Review Management</h1>
+<p class="muted">CSCI 341 Assignment 3 &mdash; simple administrative interface (PostgreSQL + SQLAlchemy + Flask).</p>
+<table>
+  <tr><th>Users</th><th>Papers</th><th>Reviews</th><th>Sessions</th><th>Conferences</th><th>Tracks</th></tr>
+  <tr><td>{{ counts.users }}</td><td>{{ counts.papers }}</td><td>{{ counts.reviews }}</td>
+      <td>{{ counts.sessions }}</td><td>{{ counts.conferences }}</td><td>{{ counts.tracks }}</td></tr>
+</table>
+
+<h2>Accepted paper schedule <span class="muted">(view accepted_paper_schedule)</span></h2>
+<table>
+  <tr><th>Paper</th><th>Title</th><th>Conf.</th><th>Track</th><th>Session</th><th>Date</th><th>Time</th>
+      <th>Room</th><th>Chair</th><th>Corresponding author</th></tr>
+  {% for r in schedule %}
+  <tr><td>{{ r.paper_id }}</td><td>{{ r.paper_title }}</td><td>{{ r.conference_acronym }}</td>
+      <td>{{ r.track_name }}</td><td>{{ r.session_id }}: {{ r.session_title }}</td><td>{{ r.session_date }}</td>
+      <td>{{ r.start_time.strftime('%H:%M') }}&ndash;{{ r.end_time.strftime('%H:%M') }}</td><td>{{ r.room_label }}</td>
+      <td>{{ r.chair_full_name }}</td><td>{{ r.corresponding_author_name }} ({{ r.corresponding_author_email }})</td></tr>
+  {% endfor %}
+</table>
+
+{% if allow_reset %}
+<form method="post" action="{{ url_for('admin_reset') }}" onsubmit="return confirm('Reset ALL data to the seed dataset?');">
+  <button class="danger">Reset database to seed data</button>
+  <span class="muted">Drops and recreates all tables, then reloads sql/seed.sql.</span>
+</form>
+{% endif %}
+{% endblock %}
