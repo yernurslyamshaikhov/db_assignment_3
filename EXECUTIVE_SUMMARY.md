@@ -2,12 +2,14 @@
 
 **Project:** Research Conference and Paper Review Management System
 
-| Member | Student ID | Contributions |
-|---|---|---|
-| Yernur Slyamshaikhov | <ID> | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
-| <Name> | <ID> | <...> |
+| Member               | Student ID | Contributions                                                        |
+| -------------------- | ---------- | -------------------------------------------------------------------- |
+| Yernur Slyamshaikhov | 202278977  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+| Yernur Kaltayev      | 202232849  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+| Olzhas Nurseit       | 202278977  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
 
 **Completed work**
+
 - Part 1: PostgreSQL schema with 15 relations, all required PK/FK/NOT NULL/UNIQUE/CHECK
   constraints, ON DELETE CASCADE from papers to versions, composite FKs keeping track
   coordinators and session chairs in the conference reviewer pool, and seed data covering every
@@ -19,6 +21,6 @@
   application checks (self-review, session assignment) with clear error messages; deployed on
   Render with persistent Neon PostgreSQL storage.
 
-**Incomplete or non-working requirements:** None known.  <edit if needed>
+**Incomplete or non-working requirements:** None known. <edit if needed>
 
 **Links:** see links.txt (video and application URL).

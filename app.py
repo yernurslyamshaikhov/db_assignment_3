@@ -149,6 +149,14 @@ def check_paper_session(conn, paper_id):
 
 
 # ===================================================================== home
+@app.get("/healthz")
+def healthz():
+    """Keep-alive / health check for Render. Deliberately does NOT touch the
+    database, so the pinger keeps the web service awake while Neon can still
+    scale to zero between real visits."""
+    return "ok", 200
+
+
 @app.route("/")
 def index():
     counts = one("""
@@ -290,7 +298,7 @@ def user_new():
         if ok:
             flash(f"User {uid} created.", "ok")
             return redirect(url_for("user_detail", uid=uid))
-        form = dict(request.form); form["pools"] = request.form.getlist("pools")
+        form: dict = {**request.form, "pools": request.form.getlist("pools")}
     else:
         form = {"pools": []}
     return render_template("user_form.html", form=form, confs=conferences(), uid=None)
@@ -303,7 +311,7 @@ def user_edit(uid):
         if ok:
             flash("User updated.", "ok")
             return redirect(url_for("user_detail", uid=uid))
-        form = dict(request.form); form["pools"] = request.form.getlist("pools")
+        form: dict = {**request.form, "pools": request.form.getlist("pools")}
     else:
         form = user_form_data(uid)
     return render_template("user_form.html", form=form, confs=conferences(), uid=uid)
@@ -484,7 +492,7 @@ def paper_detail(pid):
 
 @app.post("/papers/<int:pid>/delete")
 def paper_delete(pid):
-    ok, n = run_tx(lambda c: c.execute(text("DELETE FROM paper WHERE paper_id=:id"), {"id": pid}).rowcount)
+    ok, _ = run_tx(lambda c: c.execute(text("DELETE FROM paper WHERE paper_id=:id"), {"id": pid}).rowcount)
     if ok:
         flash(f"Paper {pid} and its authorship, keywords, versions and reviews were deleted.", "ok")
         return redirect(url_for("papers_list"))

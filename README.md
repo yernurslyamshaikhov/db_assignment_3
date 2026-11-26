@@ -94,16 +94,23 @@ No authentication is used (not required); no demo credentials are needed.
 
 ### Deployment (free): Neon PostgreSQL + Render web service
 
-1. **Database** — create a free project at neon.tech; copy its connection string
-   (`postgresql://user:pass@ep-...neon.tech/neondb?sslmode=require`). Neon storage is persistent.
+1. **Database** — create a free project at neon.tech (region e.g. AWS Frankfurt, eu-central-1);
+   copy its **pooled** connection string
+   (`postgresql://user:pass@ep-...-pooler...neon.tech/neondb?sslmode=require`). Neon storage is persistent
+   (unlike Render's free PostgreSQL, which expires after 30 days).
 2. **Code** — push this folder to a GitHub repository.
-3. **Web service** — on render.com: *New → Web Service* → connect the repo.
-   Build command `pip install -r requirements.txt`, start command `gunicorn app:app --bind 0.0.0.0:$PORT`,
-   instance type *Free*. Add environment variables `DATABASE_URL` (the Neon string) and `SECRET_KEY`.
-   (Alternatively *New → Blueprint* uses `render.yaml`.)
+3. **Web service** — on render.com: *New → Blueprint* → select the repo (uses `render.yaml`), region
+   Frankfurt, and set `DATABASE_URL` to the Neon string. (Manual alternative: *New → Web Service*,
+   build `pip install -r requirements.txt`, start `gunicorn app:app --bind 0.0.0.0:$PORT`,
+   instance type *Free*, health check path `/healthz`, env vars `DATABASE_URL` and `SECRET_KEY`.)
 4. Open the `https://<name>.onrender.com` URL; the first request creates and seeds the database.
-   Free Render services sleep after ~15 min idle; the first request then takes ~1 minute.
-5. Put the URL in `links.txt`.
+5. **Keep it awake** — free Render services sleep after 15 min without traffic (the next request
+   then takes ~1 minute). Create a free job at cron-job.org (or an UptimeRobot monitor) that sends
+   `GET https://<name>.onrender.com/healthz` **every 10 minutes**. One always-on service uses
+   ~744 of Render's 750 free hours per month. `/healthz` does not query the database, so Neon
+   still scales to zero between real visits (it wakes in under a second) and stays within its
+   free compute hours.
+6. Put the URL in `links.txt`.
 
 ## 6. Schema, keys and references
 
