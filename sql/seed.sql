@@ -1,10 +1,3 @@
--- =====================================================================
--- CSCI 341 Assignment 3 - Seed data (all people and organisations fictional)
--- Run after schema.sql. Explicit IDs are used so query parameters are stable;
--- identity sequences are advanced at the end.
--- =====================================================================
-
--- ---------------------------------------------------------------- users (12)
 INSERT INTO app_user (user_id, given_name, surname, email, affiliation, country, phone_number) VALUES
  (1,  'Arman',   'Armanov',   'arman.armanov@example.com',   'Nazarbayev University',             'Kazakhstan', '+77011112233'),
  (2,  'Amina',   'Aminova',   'amina.aminova@example.com',   'Astana IT University',              'Kazakhstan', '+77022223344'),
@@ -19,7 +12,6 @@ INSERT INTO app_user (user_id, given_name, surname, email, affiliation, country,
  (11, 'Elena',   'Petrova',   'elena.petrova@example.com',   'Novosibirsk State University',      'Russia',     '+79131234567'),
  (12, 'Daniyar', 'Serikov',   'daniyar.serikov@example.com', 'Astana IT University',              'Kazakhstan', '+77012345678');
 
--- Authors: 1,2,4,5,7,9,11,12   (author-only: 2,5,9,12)
 INSERT INTO author (author_id, orcid) VALUES
  (1,  '0000-0001-1111-0001'),
  (2,  '0000-0001-1111-0002'),
@@ -40,7 +32,6 @@ INSERT INTO author_research_area (author_id, area_label) VALUES
  (11, 'Machine Learning'), (11, 'Data Management'),
  (12, 'Graph Databases'), (12, 'Machine Learning');
 
--- Reviewers: 1,3,4,6,7,8,10,11  (reviewer-only: 3,6,8,10; both roles: 1,4,7,11)
 INSERT INTO reviewer (reviewer_id, years_experience) VALUES
  (1, 5), (3, 8), (4, 2), (6, 6), (7, 4), (8, 3), (10, 7), (11, 10);
 
@@ -54,7 +45,6 @@ INSERT INTO reviewer_expertise (reviewer_id, area_label) VALUES
  (10, 'Machine Learning'), (10, 'Software Testing'),
  (11, 'Databases'), (11, 'Machine Learning');
 
--- ---------------------------------------------------------- conferences (3)
 INSERT INTO conference (conference_id, name, acronym, description, city, country,
                         start_date, end_date, submission_deadline, review_deadline) VALUES
  (1, 'Astana International Conference on Data Systems', 'AICDS 2026',
@@ -77,7 +67,6 @@ INSERT INTO conference_reviewer (conference_id, reviewer_id) VALUES
  (2, 3), (2, 6), (2, 7), (2, 10), (2, 11),
  (3, 8), (3, 10);
 
--- --------------------------------------------------------------- tracks (6)
 INSERT INTO track (track_id, conference_id, name, description, research_area, coordinator_id) VALUES
  (1, 1, 'Database Systems',          'Storage, indexing, transactions and query processing.', 'Databases',        3),
  (2, 1, 'Data Mining and Analytics', 'Mining, analytics and ML over data.',                   'Data Mining',      1),
@@ -86,15 +75,13 @@ INSERT INTO track (track_id, conference_id, name, description, research_area, co
  (5, 2, 'Natural Language Processing','Language technologies, especially Turkic languages.',  'Natural Language Processing', 7),
  (6, 3, 'Software Testing',          'Testing, verification and quality assurance.',          'Software Testing', 8);
 
--- ------------------------------------------------------------- sessions (5)
 INSERT INTO conference_session (session_id, conference_id, title, session_date, start_time, end_time, room_label, chair_id) VALUES
  (1, 1, 'Database Systems I',      '2026-06-15', '09:00', '10:30', 'Hall A',   3),
  (2, 1, 'Analytics and ML on Data','2026-06-16', '11:00', '12:30', 'Room 204', 1),
- (3, 1, 'Late-Breaking Results',   '2026-06-17', '14:00', '15:00', 'Room 105', 4),   -- empty, Astana
+ (3, 1, 'Late-Breaking Results',   '2026-06-17', '14:00', '15:00', 'Room 105', 4),
  (4, 2, 'Machine Learning Applications', '2027-02-11', '10:00', '11:30', 'Auditorium 1', 6),
- (5, 2, 'NLP and Speech',          '2027-02-12', '09:30', '11:00', 'Auditorium 2', 7); -- empty, Almaty
+ (5, 2, 'NLP and Speech',          '2027-02-12', '09:30', '11:00', 'Auditorium 2', 7);
 
--- --------------------------------------------------------------- papers (12)
 INSERT INTO paper (paper_id, track_id, title, abstract, submission_date, status, session_id) VALUES
  (1, 1, 'Adaptive Indexing for Hybrid Transactional Workloads',
      'We present an adaptive indexing technique that reorganises indexes incrementally under mixed OLTP and OLAP workloads.',
@@ -147,7 +134,6 @@ INSERT INTO paper_keyword (paper_id, keyword) VALUES
  (11, 'sentiment analysis'), (11, 'Kazakh'),
  (12, 'named entity recognition'), (12, 'Kazakh');
 
--- Exactly one corresponding author per paper; positions 1..n
 INSERT INTO paper_author (paper_id, author_id, author_position, is_corresponding) VALUES
  (1, 4, 1, TRUE),  (1, 5, 2, FALSE),
  (2, 7, 1, TRUE),  (2, 1, 2, FALSE), (2, 12, 3, FALSE),
@@ -158,11 +144,10 @@ INSERT INTO paper_author (paper_id, author_id, author_position, is_corresponding
  (7, 1, 1, TRUE),  (7, 7, 2, FALSE),
  (8, 4, 1, TRUE),  (8, 11, 2, FALSE),
  (9, 7, 1, TRUE),  (9, 5, 2, FALSE),
- (10, 2, 1, TRUE), (10, 12, 2, FALSE),     -- Amina corresponding, withdrawn
- (11, 2, 1, TRUE),                         -- Amina corresponding, withdrawn
- (12, 9, 1, TRUE), (12, 2, 2, FALSE);      -- withdrawn, Amina NOT corresponding (must survive 4.1)
+ (10, 2, 1, TRUE), (10, 12, 2, FALSE),
+ (11, 2, 1, TRUE),
+ (12, 9, 1, TRUE), (12, 2, 2, FALSE);
 
--- Versions (gaps allowed: paper 2 has versions 1 and 3)
 INSERT INTO paper_version (paper_id, version_no, file_location, uploaded_at, change_note) VALUES
  (1, 1, '/files/papers/1/v1.pdf', '2026-02-10 10:15:00', NULL),
  (1, 2, '/files/papers/1/v2.pdf', '2026-05-01 18:40:00', 'Camera-ready version'),
@@ -180,8 +165,6 @@ INSERT INTO paper_version (paper_id, version_no, file_location, uploaded_at, cha
  (11, 1, '/files/papers/11/v1.pdf', '2026-09-25 10:30:00', NULL),
  (12, 1, '/files/papers/12/v1.pdf', '2026-10-02 15:00:00', NULL);
 
--- Completed reviews (16). Counts: Arman 3, Dana 4, Timur 1, Yerlan 3, Madina 1,
--- Nurlan 0, Ruslan 2, Elena 2  -> average 2.0 per reviewer. No reviewer reviews own paper.
 INSERT INTO review (review_id, paper_id, reviewer_id, overall_score, recommendation,
                     comments_for_authors, confidential_comments, review_submission_date) VALUES
  (1,  1, 3, 5, 'accept', 'Clear contribution and strong experiments.', NULL, '2026-04-01'),
@@ -201,7 +184,6 @@ INSERT INTO review (review_id, paper_id, reviewer_id, overall_score, recommendat
  (15, 10, 10, 2, 'reject', 'Comparison misses recent libraries.', NULL, '2026-10-20'),
  (16, 11, 11, 3, 'reject', 'Corpus is too small for strong conclusions.', NULL, '2026-10-22');
 
--- Advance identity sequences past the explicit IDs
 SELECT setval(pg_get_serial_sequence('app_user', 'user_id'),             (SELECT MAX(user_id) FROM app_user));
 SELECT setval(pg_get_serial_sequence('conference', 'conference_id'),     (SELECT MAX(conference_id) FROM conference));
 SELECT setval(pg_get_serial_sequence('track', 'track_id'),               (SELECT MAX(track_id) FROM track));

@@ -1,18 +1,3 @@
-"""CSCI 341 Assignment 3 - Part 2: SQL operations through Python and SQLAlchemy.
-
-Runs every numbered task (1-8) against PostgreSQL and prints, for each task,
-the SQL statement, its bound parameters and its result.
-
-* Tasks 1 and 2 rebuild the schema and seed data (so this script always starts
-  from the original seed dataset).
-* Every update/delete (tasks 3 and 4) runs inside a transaction: the script
-  shows the rows before, executes the statement, shows the rows after and
-  then ROLLS BACK, so every later task again runs against the original seed.
-
-Usage:
-    DATABASE_URL=postgresql://user:pass@host:5432/confdb python part2_queries.py
-Output is printed and also written to part2_output.txt.
-"""
 import sys
 from datetime import date, datetime, time
 from decimal import Decimal
@@ -24,7 +9,6 @@ from db import SCHEMA_FILE, SEED_FILE, VIEW_FILE, get_engine, run_sql_file
 
 OUTPUT_FILE = Path(__file__).resolve().parent / "part2_output.txt"
 
-# ----------------------------------------------------------- query parameters
 PARAMS = {
     "3.1": {"email": "arman.armanov@example.com", "phone": "+77773414141"},
     "3.2": {"city": "Astana", "astana_days": 7, "other_days": 3},
@@ -43,7 +27,6 @@ TABLES = ["app_user", "author", "author_research_area", "reviewer", "reviewer_ex
           "paper_version", "review"]
 
 
-# ------------------------------------------------------------------ printing
 class Tee:
     def __init__(self, *streams):
         self.streams = streams
@@ -104,7 +87,6 @@ def run_query(conn, label, sql, params=None):
 
 
 def run_mutation(engine, label, stmt, params, check_sql, check_params=None):
-    """Before -> mutate -> after -> ROLLBACK (restores the seed state)."""
     heading(label)
     with engine.connect() as conn:
         trans = conn.begin()
@@ -125,7 +107,6 @@ def run_mutation(engine, label, stmt, params, check_sql, check_params=None):
         print_table(conn.execute(text(check_sql), check_params or {}))
 
 
-# ------------------------------------------------------------------- tasks
 def task_1_create(engine):
     heading("TASK 1 - Create statements (tables + constraints from sql/schema.sql)")
     print(f"Executing {SCHEMA_FILE.name} through SQLAlchemy (conn.exec_driver_sql) ...\n")
@@ -177,8 +158,7 @@ WHERE email = :email""",
         """
 UPDATE conference
 SET review_deadline = review_deadline +
-    CASE WHEN city = :city THEN :astana_days ELSE :other_days END
--- PostgreSQL: DATE + INTEGER adds that many days""",
+    CASE WHEN city = :city THEN :astana_days ELSE :other_days END""",
         PARAMS["3.2"],
         """
 SELECT conference_id, acronym, city, review_deadline

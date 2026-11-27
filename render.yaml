@@ -1,4 +1,3 @@
-# Render Blueprint: web service. Set DATABASE_URL to your Neon (or Render) PostgreSQL URL.
 services:
   - type: web
     name: conference-review-app

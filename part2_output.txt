@@ -225,7 +225,6 @@ SQL:
     UPDATE conference
     SET review_deadline = review_deadline +
         CASE WHEN city = :city THEN :astana_days ELSE :other_days END
-    -- PostgreSQL: DATE + INTEGER adds that many days
 Bound parameters: {'city': 'Astana', 'astana_days': 7, 'other_days': 3}
 
 Rows affected: 3
