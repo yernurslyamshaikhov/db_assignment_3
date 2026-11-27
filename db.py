@@ -13,7 +13,17 @@ DEFAULT_URL = "postgresql+psycopg2://postgres:postgres@localhost:5432/confdb"
 
 
 def database_url() -> str:
-    url = os.environ.get("DATABASE_URL", DEFAULT_URL)
+    url = os.environ.get("DATABASE_URL", DEFAULT_URL).strip().strip("'\"")
+    # Tolerate a pasted "psql 'postgresql://...'" command from the Neon console
+    if url.startswith("psql "):
+        url = url[5:].strip().strip("'\"")
+    if not url.startswith(("postgres://", "postgresql://", "postgresql+")):
+        scheme = url.split("://", 1)[0] if "://" in url else url[:20]
+        raise RuntimeError(
+            f"DATABASE_URL must be a PostgreSQL connection string "
+            f"(postgresql://user:password@host/dbname?sslmode=require), but it starts with "
+            f"'{scheme}'. In Neon use Dashboard -> Connect -> 'Connection string', "
+            f"not the project web/REST URL.")
     # Some hosts (Render, Heroku) hand out postgres:// URLs; SQLAlchemy needs postgresql://
     if url.startswith("postgres://"):
         url = "postgresql://" + url[len("postgres://"):]
