@@ -1,0 +1,10 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.mypy_cache/
+.git/
+*.pdf
+.env
+dump/
+part2_output.txt

@@ -92,6 +92,18 @@ On first start with an empty database the app creates the schema and seed automa
 
 No authentication is used (not required); no demo credentials are needed.
 
+### Running with Docker (PostgreSQL + web app)
+
+```bash
+docker compose up --build          # http://localhost:8000
+docker compose exec web python part2_queries.py   # run Part 2 inside the container
+docker compose exec web python init_db.py         # re-create and re-seed the database
+docker compose down -v             # stop and delete the database volume
+```
+
+The `db` service runs PostgreSQL 16 (database `confdb`, user/password `postgres`/`postgres`,
+also exposed on `localhost:5432`); the `web` service seeds it automatically on first start.
+
 ### Deployment (free): Neon PostgreSQL + Render web service
 
 1. **Database** — create a free project at neon.tech (region e.g. AWS Frankfurt, eu-central-1);

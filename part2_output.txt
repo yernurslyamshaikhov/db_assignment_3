@@ -1,6 +1,6 @@
 CSCI 341 Assignment 3 - Part 2 output
-Run at 2026-11-24 21:05:46
-PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit
+Run at 2026-11-27 17:03:14
+PostgreSQL 16.16 on aarch64-unknown-linux-musl, compiled by gcc (Alpine 15.2.0) 15.2.0, 64-bit
 
 ==============================================================================
 TASK 1 - Create statements (tables + constraints from sql/schema.sql)
@@ -645,7 +645,6 @@ TASK 8 - View accepted_paper_schedule
 ==============================================================================
 Creating the view:
 SQL:
-    -- Task 8: accepted_paper_schedule (one row per paper assigned to a session)
     CREATE OR REPLACE VIEW accepted_paper_schedule AS
     SELECT p.paper_id,
            p.title                                   AS paper_title,
