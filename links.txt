@@ -1,3 +1,5 @@
-Video presentation (Google Drive, viewable by anyone with the link): <PASTE GOOGLE DRIVE LINK>
-Deployed application: <PASTE https://....onrender.com URL>
+Video presentation (Google Drive, viewable by anyone with the link): https://drive.google.com/file/d/1UebKQg7rSPCO5VnE4Uy4kfjIEpLdIrbg/view?usp=sharing
+
+Deployed application: https://conference-review-app-soqj.onrender.com/
+
 Demo credentials: none required (no authentication)
