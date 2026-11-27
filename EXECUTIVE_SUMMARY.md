@@ -6,7 +6,7 @@
 | -------------------- | ---------- | -------------------------------------------------------------------- |
 | Yernur Slyamshaikhov | 202278977  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
 | Yernur Kaltayev      | 202232849  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
-| Olzhas Nurseit       | 202278977  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+| Olzhas Nurseit       | 202270951  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
 
 **Completed work**
 
