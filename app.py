@@ -1,16 +1,3 @@
-"""CSCI 341 Assignment 3 - Part 3: Flask web application.
-
-CRUD for users (with author/reviewer profiles), papers (with authorship,
-keywords and versions), reviews and sessions. All SQL goes through
-SQLAlchemy Core with bound parameters; each request that changes data runs
-in one transaction (engine.begin()), so a failed check rolls everything back.
-
-Required application checks (see check_* functions):
-  1. no self-reviews (on review save AND on paper-author changes)
-  2. session assignments: paper must be accepted and its track's conference
-     must equal the session's conference (on assignment, paper status/track
-     change, and session conference change)
-"""
 import os
 from datetime import datetime
 
@@ -27,7 +14,6 @@ engine = get_engine()
 STATUSES = ["submitted", "under review", "accepted", "rejected", "withdrawn"]
 MAX_AUTHORS = 6
 
-# Friendly messages for named database constraints
 CONSTRAINT_MESSAGES = {
     "uq_app_user_email": "A user with this email already exists.",
     "author_orcid_key": "This ORCID is already used by another author.",
@@ -52,7 +38,7 @@ CONSTRAINT_MESSAGES = {
 
 
 class AppError(Exception):
-    """Business-rule violation detected by the application (causes rollback)."""
+    pass
 
 
 def db_error_message(e: DBAPIError) -> str:
@@ -65,7 +51,6 @@ def db_error_message(e: DBAPIError) -> str:
 
 
 def run_tx(fn):
-    """Run fn(conn) in one transaction. Returns (ok, result). Flashes errors."""
     try:
         with engine.begin() as conn:
             return True, fn(conn)
@@ -114,9 +99,7 @@ def req(form, field, label):
     return v
 
 
-# ======================================================= required app checks
 def check_no_self_review(conn, paper_id):
-    """Check 1: no review of this paper may be written by one of its authors."""
     bad = conn.execute(text("""
         SELECT u.given_name || ' ' || u.surname AS name
         FROM review r
@@ -129,7 +112,6 @@ def check_no_self_review(conn, paper_id):
 
 
 def check_paper_session(conn, paper_id):
-    """Check 2: a scheduled paper must be accepted and in the session's conference."""
     r = conn.execute(text("""
         SELECT p.title, p.status, p.session_id, t.conference_id AS track_conf,
                s.conference_id AS session_conf
@@ -148,12 +130,8 @@ def check_paper_session(conn, paper_id):
                        f"conference {r['session_conf']}.")
 
 
-# ===================================================================== home
 @app.get("/healthz")
 def healthz():
-    """Keep-alive / health check for Render. Deliberately does NOT touch the
-    database, so the pinger keeps the web service awake while Neon can still
-    scale to zero between real visits."""
     return "ok", 200
 
 
@@ -197,7 +175,6 @@ def admin_reset():
     return redirect(url_for("index"))
 
 
-# ==================================================================== users
 def conferences():
     return rows("SELECT conference_id, acronym, city FROM conference ORDER BY conference_id")
 
@@ -251,7 +228,6 @@ def save_user(conn, uid, f):
                    affiliation=:affiliation, country=:country, phone_number=:phone_number
             WHERE user_id=:uid"""), {**data, "uid": uid})
 
-    # ---- author profile
     if is_author:
         areas = split_labels(f.get("research_areas"))
         if not areas:
@@ -266,7 +242,6 @@ def save_user(conn, uid, f):
     else:
         conn.execute(text("DELETE FROM author WHERE author_id=:id"), {"id": uid})
 
-    # ---- reviewer profile
     if is_reviewer:
         years = to_int(f.get("years_experience"), "Years of experience")
         exp = split_labels(f.get("expertise"))
@@ -340,7 +315,6 @@ def user_delete(uid):
     return redirect(url_for("user_detail", uid=uid))
 
 
-# =================================================================== papers
 def paper_choices():
     tracks = rows("""SELECT t.track_id, t.name, c.acronym FROM track t
                      JOIN conference c USING (conference_id) ORDER BY t.track_id""")
@@ -391,7 +365,6 @@ def save_paper(conn, pid, f):
     if not keywords:
         raise AppError("A paper needs at least one keyword.")
 
-    # authors in row order -> positions 1..n
     authors, corr_author = [], None
     for i in range(1, MAX_AUTHORS + 1):
         aid = f.get(f"author_{i}")
@@ -436,8 +409,8 @@ def save_paper(conn, pid, f):
                              VALUES (:pid, :aid, :pos, :corr)"""),
                      {"pid": pid, "aid": aid, "pos": pos, "corr": aid == corr_author})
 
-    check_no_self_review(conn, pid)      # required check 1 (author change)
-    check_paper_session(conn, pid)       # required check 2 (status / track / session change)
+    check_no_self_review(conn, pid)
+    check_paper_session(conn, pid)
     return pid
 
 
@@ -499,7 +472,6 @@ def paper_delete(pid):
     return redirect(url_for("paper_detail", pid=pid))
 
 
-# ---- versions (managed inside the paper workflow)
 @app.post("/papers/<int:pid>/versions")
 def version_add(pid):
     f = request.form
@@ -548,7 +520,6 @@ def version_delete(pid, v):
     return redirect(url_for("paper_detail", pid=pid))
 
 
-# ================================================================== reviews
 def review_choices():
     papers = rows("""SELECT p.paper_id, p.title, c.acronym FROM paper p JOIN track t USING (track_id)
                      JOIN conference c USING (conference_id) ORDER BY p.paper_id""")
@@ -576,7 +547,6 @@ def save_review(conn, rid, f):
         "conf": (f.get("confidential_comments") or "").strip() or None,
         "date": req(f, "review_submission_date", "Review submission date"),
     }
-    # Required check 1: reviewer must not be an author of the paper
     is_author = conn.execute(text("""SELECT 1 FROM paper_author
                                      WHERE paper_id=:paper_id AND author_id=:reviewer_id"""),
                              params).first()
@@ -643,7 +613,6 @@ def review_delete(rid):
     return redirect(url_for("reviews_list"))
 
 
-# ================================================================= sessions
 def session_choices():
     reviewers = rows("""SELECT r.reviewer_id, u.given_name || ' ' || u.surname AS name,
                                (SELECT string_agg(c.acronym, ', ' ORDER BY c.conference_id)
@@ -684,7 +653,6 @@ def save_session(conn, sid, f):
         UPDATE conference_session SET conference_id=:conf, title=:title, session_date=:date,
                start_time=:start, end_time=:end, room_label=:room, chair_id=:chair
         WHERE session_id=:sid"""), {**params, "sid": sid})
-    # Required check 2: changing the session's conference must not invalidate assignments
     for pid in conn.execute(text("SELECT paper_id FROM paper WHERE session_id=:sid"),
                             {"sid": sid}).scalars():
         check_paper_session(conn, pid)
@@ -731,7 +699,6 @@ def session_detail(sid):
     papers = rows("""SELECT p.paper_id, p.title, p.status, t.name AS track
                      FROM paper p JOIN track t USING (track_id)
                      WHERE p.session_id=:id ORDER BY p.paper_id""", id=sid)
-    # all papers are offered so that invalid assignments can be demonstrated (and rejected)
     candidates = rows("""SELECT p.paper_id, p.title, p.status, c.acronym, p.session_id
                          FROM paper p JOIN track t USING (track_id) JOIN conference c USING (conference_id)
                          WHERE p.session_id IS DISTINCT FROM :id ORDER BY p.paper_id""", id=sid)
@@ -768,13 +735,12 @@ def session_delete(sid):
     return redirect(url_for("session_detail", sid=sid))
 
 
-# ------------------------------------------------- first start on a fresh DB
 if os.environ.get("AUTO_INIT_DB", "1") == "1":
     try:
         if not schema_exists(engine):
             reset_database(engine)
             print("Empty database detected: schema and seed data created.")
-    except Exception as exc:  # do not crash the import if the DB is briefly unavailable
+    except Exception as exc:
         print(f"Auto-init skipped: {exc}")
 
 

@@ -1,10 +1,3 @@
-"""Create the schema and load the seed data (restores the initial dataset).
-
-Usage:
-    set DATABASE_URL=postgresql://user:pass@host:5432/dbname   (Windows)
-    export DATABASE_URL=postgresql://user:pass@host:5432/dbname (macOS/Linux)
-    python init_db.py
-"""
 from sqlalchemy import text
 
 from db import get_engine, reset_database

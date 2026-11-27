@@ -1,4 +1,3 @@
--- Task 8: accepted_paper_schedule (one row per paper assigned to a session)
 CREATE OR REPLACE VIEW accepted_paper_schedule AS
 SELECT p.paper_id,
        p.title                                   AS paper_title,

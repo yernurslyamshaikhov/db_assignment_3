@@ -1,4 +1,3 @@
-"""Shared database helpers (SQLAlchemy engine + SQL script runner)."""
 import os
 from pathlib import Path
 
@@ -37,11 +36,6 @@ def get_engine(echo: bool = False):
 
 
 def run_sql_file(conn, path: Path) -> None:
-    """Execute a multi-statement SQL script on an open SQLAlchemy connection.
-
-    exec_driver_sql passes the script straight to psycopg2 (no bind-parameter
-    parsing), so literals such as '09:00' are not mistaken for :params.
-    """
     conn.exec_driver_sql(Path(path).read_text(encoding="utf-8"))
 
 
@@ -56,7 +50,6 @@ def load_seed(conn) -> None:
 
 
 def reset_database(engine) -> None:
-    """Drop + recreate all tables/views and load the seed data in one transaction."""
     with engine.begin() as conn:
         create_schema(conn)
         load_seed(conn)

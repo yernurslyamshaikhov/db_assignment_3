@@ -2,6 +2,7 @@
 
 **Project:** Research Conference and Paper Review Management System
 
+<<<<<<< HEAD
 | Member | Student ID | Contributions |
 | --- | --- | --- |
 | Yernur Slyamshaikhov | 202278977 | Part 1: relational schema from the Assignment 1 design (`sql/schema.sql`) with all PK/FK/UNIQUE/CHECK constraints, cascades and reviewer-pool composite FKs; sample data (`sql/seed.sql`) covering every required case; `pg_dump` export; schema/keys and business-rule sections of the README. |
@@ -9,6 +10,13 @@
 | Olzhas Nurseit | 202278977 | Part 3: Flask application (`app.py`, `templates/`) with CRUD for users, papers, reviews and sessions; self-review and session-assignment checks with transactions and error messages; deployment on Render with Neon PostgreSQL and keep-alive health check. |
 
 All members: testing, video presentation and this summary.
+=======
+| Member               | Student ID | Contributions                                                        |
+| -------------------- | ---------- | -------------------------------------------------------------------- |
+| Yernur Slyamshaikhov | 202278977  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+| Yernur Kaltayev      | 202232849  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+| Olzhas Nurseit       | 202270951  | <e.g. schema, seed data, Part 2 queries, web app, deployment, video> |
+>>>>>>> a11e3ebc5aa3faf286e559a8784a99b95143fd5a
 
 **Completed work**
 
